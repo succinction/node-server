@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{headerMessage}}</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            margin: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>{{headerMessage}}</h1>
+    <h2>Hello... I am the coin puzzle solver robot 0.1.</h2>
+    <p>I can only solve the 12 coin puzzle, until I am programmed to do more.
+    </p>
+    <p> I will need you to tell me the results of the measurements as we go. I will tell you how to arrange the coins per each
+        measurement.</p>
+    <hr>
+    <p>First arrange the coins so that 1, 2, 3, 4 are on the left side, and 5, 6, 7, 8 are on the right side, leaving 9, 10
+        , 11, 12 on the table. </p>
+    <p>
+        What is the result of the fist measurement?
+    </p>
+    <button id="left_1_btn"> Left side heavy? </button>
+    <button id="right_1_btn"> Right side heavy? </button>
+    <button id="balanced_1_btn"> The scale is balanced</button>
+
+
+    <div id="response_1" class="response" style="display:none;">
+        <p id="response_1p"></p>
+        <p> What is the result? </p>
+        <button id="left_2_btn"> Left side heavy? </button>
+        <button id="right_2_btn"> Right side heavy? </button>
+        <button id="balanced_2_btn"> The scale is balanced</button>
+    </div>
+
+    <div id="response_2" class="response" style="display:none;">
+        <p id="response_2p"></p>
+        <p> What is the result? </p>
+        <button id="left_3_btn"> Left side heavy? </button>
+        <button id="right_3_btn"> Right side heavy? </button>
+        <button id="balanced_3_btn"> The scale is balanced</button>
+    </div>
+
+    <div id="response_3" class="response" style="display:none;">
+        <p id='response_3p'></p>
+    </div>
+    <hr>
+    <div>
+        <button type="reset">Restart</button>
+        <button disabled="disabled">some</button>
+    </div>
+
+    {{> footer}}
+
+    <script>
+        const left_1_btn = document.getElementById("left_1_btn")
+        const right_1_btn = document.getElementById("right_1_btn")
+        const balanced_1_btn = document.getElementById("balanced_1_btn")
+        const left_2_btn = document.getElementById("left_2_btn")
+        const right_2_btn = document.getElementById("right_2_btn")
+        const balanced_2_btn = document.getElementById("balanced_2_btn")
+        const left_3_btn = document.getElementById("left_3_btn")
+        const right_3_btn = document.getElementById("right_3_btn")
+        const balanced_3_btn = document.getElementById("balanced_3_btn")
+        const button_array = [
+            [left_1_btn, right_1_btn, balanced_1_btn],
+            [left_2_btn, right_2_btn, balanced_2_btn],
+            [left_3_btn, right_3_btn, balanced_3_btn]
+        ]
+        const response_1 = document.getElementById("response_1")
+        const response_1p = document.getElementById("response_1p")
+        const response_2 = document.getElementById("response_2")
+        const response_2p = document.getElementById("response_2p")
+        const response_3 = document.getElementById("response_3")
+        const response_3p = document.getElementById("response_3p")
+        const reponse_block = [response_1, response_2, response_3]
+        const response_array = [response_1p, response_2p, response_3p]
+
+        left_1_btn.addEventListener("click", () => measure("left_1"))
+        right_1_btn.addEventListener("click", () => measure("right_1"))
+        balanced_1_btn.addEventListener("click", () => measure("balanced_1"))
+        left_2_btn.addEventListener("click", () => measure("left_2"))
+        right_2_btn.addEventListener("click", () => measure("right_2"))
+        balanced_2_btn.addEventListener("click", () => measure("balanced_2"))
+        left_3_btn.addEventListener("click", () => measure("left_3"))
+        right_3_btn.addEventListener("click", () => measure("right_3"))
+        balanced_3_btn.addEventListener("click", () => measure("balanced_3"))
+
+        var scale_results = []
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+        function measure(incoming_scale_results) {
+
+            let measure_number = Number(incoming_scale_results.replace(/[^0-9]/g, ''))
+            let measure_iterator = measure_number - 1
+
+            scale_results.push(incoming_scale_results)
+
+
+
+            console.log('scale_results:', scale_results)
+
+
+            console.log('measure_number:', measure_number)
+            console.log('measure_iterator:', measure_iterator)
+            console.log('parseInt scale_results:', scale_results[measure_iterator].replace(/[^0-9]/g, ''))
+
+            function transform_view(num) {
+                console.log("num", num, typeof num)
+                button_array[num][0].setAttribute("disabled", "disabled")
+                button_array[num][1].setAttribute("disabled", "disabled")
+                button_array[num][2].setAttribute("disabled", "disabled")
+                reponse_block[num].setAttribute("style", "display:block")
+            }
+            transform_view(measure_iterator)
+
+            axios.get(`/coin_measure/${measure_number}/${scale_results.toString()}`, {}).then(function (response) {
+                console.log("response", response.data)
+                response_array[measure_iterator].innerHTML = response.data.instructions;
+            }).catch(function (error) {
+                console.log("catch error:", error)
+                response_array[measure_iterator].innerHTML = error;
+            });
+        }
+
+        function reveal_next_step(step, message) {
+        }
+    </script>
+</body>
+
+</html>
